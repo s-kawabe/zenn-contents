@@ -70,8 +70,8 @@ prettierに関してもテンプレートをcloneした時点で最初から保�
 入れておくことにしました。
 一緒に`vscode/settings.json`などもコミットしておきます。
 
-### husky
-commit時にlinterを走らせてくれるものです。
+### husky, lint-staged
+commit時にlinterやformatterのチェックを走らせてくれるものです。
 「eslintによってエディタ上でlinterエラーは分かるのでは？」
 と思われるかもしれないのですが、コード変更によって、予定外のファイルがそれに依存していて
 エラーに気づかないようなケースもある為入れておきたいなと思いました。
@@ -115,7 +115,7 @@ GitHubにリポジトリを作成します。
 
 # 2. Next.jsとTypeScriptの設定
 
-## install
+## インストール
 最初にNext.jsで環境を作ります。
 TypeScriptには[examples](https://nextjs.org/examples)という、さまざまなライブラリと一緒に使う際の
 参考リポジトリのようなものがあるのですが、こちらに関しては所々バージョンが低かったりする印象を受けたことと
@@ -140,12 +140,81 @@ yarn dev
 ```
 
 localhost:3000にアクセスし以下が表示されればOKです。
+![](/images/how-to-make-next-template-repository/success-yarn-dev.png)
 
+## ディレクトリ変更
+Next.jsに関しては環境構築直後は`src`ディレクトリが無いのですが、最近は「page component以外のcomponentやそれに関わるファイル」というのは
+ほとんど`src`に纏めるのが主流だと思うので変更していきます。
+また、概要で言ったような構成で大体のディレクトリ構成も決めてしまいます。
 
+以下のような状態になりました。
 
-# 3. eslintとprettierの設定
+**before**
+```
+next-ts-template
+├── pages
+│   ├── _app.tsx
+│   ├── api
+│   └── index.tsx
+├── public
+│   ├── favicon.ico
+│   └── vercel.svg
+├── styles
+│   ├── Home.module.css
+│   └── globals.css
+...設定ファイルなど
+```
 
-# 4. huskyの設定
+**after**
+```
+```
+
+## tsconfig.jsonの変更
+ファイルをimportする際、絶対パス指定で固定したいのと、srcファイル配下のものは「@」をつけて
+わかりやすくしたいので`tsconfig.json`のcompilerOptions内に`baseUrl`と`paths`を設定します。
+
+```diff json
+{
+  "compilerOptions": {
+    ...
++   "baseUrl": ".",
++   "paths": {
++     "@/*": ["src/*"],
++     "~/*": ["./*"],
++   },
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+```
+
+:::message
+こちらのエイリアス設定はStorybookなど、ライブラリによってはパスを解決してくれない場合があり追加設定が必要なことがあります。
+また、create-react-appなどではwebpackの設定変更が必要になります。
+:::
+
+これによって各ファイルのimport部分が次のようになり、とても見やすくなることが想定されます。
+
+```tsx
+// node_modulesから読み込んだもの
+import { useRouter } from 'next/router'
+import type { VFC } from 'react'
+// 内部のsrc配下から読み込んだもの
+import { someComponent } from '@/components/some'
+// 内部のルートディレクトリから読み込んだもの
+import { someSettings } from '~/someSettings.ts'
+```
+
+# 3. eslint, prettierの設定
+
+# 4. husky, lint-stagedの設定
+
+## インストール
+以下のコマンドでパッケージをインストールします。
+
+```
+yarn add -D husky lint-staged
+```
 
 # 5. jest, react-testing-libraryの設定
 
