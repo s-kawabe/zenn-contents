@@ -2,21 +2,21 @@
 title: "Next.jsのテンプレートリポジトリをつくろう"
 emoji: "⏭️"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["nextjs", "eslint", "prettier", "typescript"]
+topics: ["nextjs", "eslint", "prettier", "typescript", "jest", "renovate"]
 published: false
 ---
 
 # はじめに
-Webフロントエンジニア歴5ヶ月の初心者です。
-最近のおしゃれなエンジニアは、あらゆるエコシステムの素振りや、新しいプロジェクトの雛形として自分なりのテンプレートリポジトリを作っているようなので私も真似してみたく、
+Webフロントエンジニア歴5ヶ月の者です。
+最近のおしゃれなエンジニアは、あらゆるエコシステムの素振りや、新しいプロジェクトの雛形として自分なりのテンプレートリポジトリを作っているようなので私も真似してみたいなと思い、
 この度これの作成過程を記録しておこうと記事にしてみました。
 
 拙い点や改善点がありましたら、ご指摘いただけると大変嬉しいです🙇‍♂️
-特に各技術の言語化などに関しては自信のない部分があります...
+特に各技術の言語化やeslintの設定ファイルの書き方などに関しては自信のない部分があります...
 
-また、今回の完成版リポジトリに関して(動作は保証できませんが...)自由にご使用いただいて構いません！
+また、今回の完成版リポジトリに関しては(動作は保証できませんが...)自由にご使用いただいて構いません！
 
-**2021/12/11時点の完成形**
+**完成形リポジトリ(※2021/12/14記述時点からアップデートされている可能性があります)**
 
 
 # 対象読者
@@ -31,6 +31,7 @@ pcはm1macbook proを使用しています。
 
 | 対象 | version |
 | ---- | ---- |
+| macOS | BigSur 11.5.2 |
 | node | 16.6.0 |
 | yarn | 1.22.17 |
 | npx | 7.19.1 |
@@ -75,6 +76,7 @@ commit時にlinterやformatterのチェックを走らせてくれるもので�
 「eslintによってエディタ上でlinterエラーは分かるのでは？」
 と思われるかもしれないのですが、コード変更によって、予定外のファイルがそれに依存していて
 エラーに気づかないようなケースもある為入れておきたいなと思いました。
+また、エラーがあった場合CIなどでチェックせず、コミット前に検知できるのも魅力的です。
 
 ### jest, react-testing-library
 正直なところ、今までフロントエンドのテストを積極的に学んでこなかったので宇賀
@@ -90,9 +92,7 @@ commit時にlinterやformatterのチェックを走らせてくれるもので�
 ### ErrorBoundary
 [ErrorBoundary](https://ja.reactjs.org/docs/error-boundaries.html)とは、Reactコンポーネントツリー内で発生したエラーを
 ハンドリングし切れない場合、クラッシュしたアプリケーションの代わりのコンポーネントを表示させる機構です。
-https://zenn.dev/azukiazusa/articles/60933e9cb1a4bc
-こちらの記事を参考にさせていただき、
-念の為入れておくことにしました。
+エラーに関しては念の為入れておくことにしました。
 React Server Componentsの登場や、Suspenseとの併用なども後々考えていきたいなと思います。
 （ここらへんはちょっと勉強中の為、ツッコミどころあるかと思いますが...）
 
@@ -115,7 +115,7 @@ GitHubにリポジトリを作成します。
 
 # 2. Next.jsとTypeScriptの設定
 
-## インストール
+## packageインストール
 最初にNext.jsで環境を作ります。
 TypeScriptには[examples](https://nextjs.org/examples)という、さまざまなライブラリと一緒に使う際の
 参考リポジトリのようなものがあるのですが、こちらに関しては所々バージョンが低かったりする印象を受けたことと
@@ -143,9 +143,9 @@ localhost:3000にアクセスし以下が表示されればOKです。
 ![](/images/how-to-make-next-template-repository/success-yarn-dev.png)
 
 ## ディレクトリ変更
-Next.jsに関しては環境構築直後は`src`ディレクトリが無いのですが、最近は「page component以外のcomponentやそれに関わるファイル」というのは
-ほとんど`src`に纏めるのが主流だと思うので変更していきます。
-また、概要で言ったような構成で大体のディレクトリ構成も決めてしまいます。
+Next.jsに関しては環境構築直後はsrcディレクトリが無いのですが、最近は「page component以外のcomponentやそれに関わるファイル」というのは
+ほとんどsrcに纏めるのが主流だと思うので変更していきます。
+また、概要で参考にさせていただいたもので大体のディレクトリ構成も決めてしまいます。
 
 以下のような状態になりました。
 
@@ -162,18 +162,36 @@ next-ts-template
 ├── styles
 │   ├── Home.module.css
 │   └── globals.css
-...設定ファイルなど
+...
 ```
 
 **after**
+```diff
+next-ts-template
+├ src
+│ ├── components
+│ │   ├── layout // レイアウトに関するもの
+│ │   ├── model // userやpostなど特定のモデルに関するもの
+│ │   ├── page // ページコンポーネントそのままのもの(pagesの方でこの中のものをimportする)
+│ │   └── shared // 特定のモデルに依存しない共通のui
+│ ├── hooks // hooksをまとめる
+│ ├── pages // Next.jsからページとして認識される場所(必須)
+│ ├── public // 画像などの静的ファイル
+│ └── utils // 共通関数などをまとめる
+├ test
+...
 ```
-```
+
+test用のディレクトリのみsrc外に出して、それ以外はsrc内に含めてしまいます。
+将来的には[このような](https://www.npmjs.com/package/eslint-plugin-strict-dependencies)eslintルールを用いて、
+ディレクトリ間の依存関係ルールも決めていきたいなと思います。
+また、まだ実際に試していない為今後こういった部分は試行錯誤していくところかなと思います。
 
 ## tsconfig.jsonの変更
 ファイルをimportする際、絶対パス指定で固定したいのと、srcファイル配下のものは「@」をつけて
 わかりやすくしたいので`tsconfig.json`のcompilerOptions内に`baseUrl`と`paths`を設定します。
 
-```diff json
+```diff json:tsconfig.json
 {
   "compilerOptions": {
     ...
@@ -207,26 +225,481 @@ import { someSettings } from '~/someSettings.ts'
 
 # 3. eslint, prettierの設定
 
+## packageインストール
+以下のコマンドでパッケージをインストールします。
+
+typescript系
+```
+yarn add -D @typescript-eslint/eslint-plugin @typescript-eslint/parser
+```
+prettier系
+```
+yarn add -D prettier eslint-config-prettier
+```
+その他便利系
+```
+yarn add -D eslint-plugin-import eslint-plugin-simple-import-sort
+```
+
+## eslint設定ファイル変更
+
+Next.jsのversion11からはデフォルトで`eslint-config-next`というものが入っており、こちらには`react`, `react-hooks`, `a11y`などの基本的なルールは既に入っている状態になっているようです。 ([参考](https://zenn.dev/thiragi/articles/555a644b35ebc1))
+
+個人的に中のルールに対してコメントを書いておかないと忘れてしまう為、ファイル名を`eslintrc.json`から`eslintrc.js`に変え、中身を以下のようにmodule.exportsを追加します。
+
+```diff js:.eslintrc.js
++ module.exports = {
+  // いろんなルール
+}
+```
+
+このようにした上で、中身を以下のようにいろいろと追加します。
+
+```js:.eslintrc.js
+module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    es6: true,
+    node: true,
+  }, 
+  parser: "@typescript-eslint/parser",
+  parserOptions: { 
+    project: "./tsconfig.json", 
+    ecmaFeatures: {
+      jsx: true,
+    },
+    sourceType: 'module',
+  },
+  plugins: ['react-hooks', 'react', '@typescript-eslint', 'import', "simple-import-sort"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "next",
+    "next/core-web-vitals",
+    "prettier",
+  ],
+  rules: {
+    "no-console": ["warn", { allow: ["warn", "info", "error"] }], // console.logが残っていればwarn
+    "no-restricted-syntax": [ // for in, for of, enumは使ってはいけない
+      "error",
+      {
+        selector: 'ForInStatement',
+        message: 'for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array.',
+      },
+      {
+        selector: 'ForOfStatement',
+        message: 'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
+      },
+      { 
+        selector: "TSEnumDeclaration", 
+        message: "Don't declare enums" 
+      }
+    ],
+    "prefer-arrow-callback": "error", // arrow functionを許可
+    "prefer-const": "error", // const推奨
+    "func-style": ["error", "expression"], // 関数式を使わなければいけない
+    "arrow-body-style": ["error", "always"], // 関数式の中身は必ず中括弧で囲む
+    "no-restricted-imports": ["error", { paths: [{ name: "react", importNames: ["default"] }] }], // reactの明示的なimportは不要なので禁止
+    "react/prop-types": "off", // ts使うので不要
+    "react/react-in-jsx-scope": "off", // reactはグローバルなので不要
+    "react/display-name": "error", // 無名関数を禁止する
+    "react/no-unused-prop-types": "error", // 未使用propsはエラー
+    "react-hooks/rules-of-hooks": "error", // hooksの基本的なlinter
+    "react-hooks/exhaustive-deps": "warn", // effectやcallbackのdeps linter
+    "import/newline-after-import": "error",
+    "import/no-default-export": "error",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "error",
+    "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
+    "@typescript-eslint/no-unused-vars": ["error", { varsIgnorePattern: "^_", argsIgnorePattern: "^_", }], // 未使用変数はエラー
+  },
+  overrides: [ // 一部ルールを除外する
+    {
+      files: ["src/pages/**/*.tsx"], // pagesのdefault exportは仕方ないので除外
+      rules: { "import/no-default-export": "off" },
+    },
+    {
+      files: ["**/*.tsx"],
+      rules: {
+        "@typescript-eslint/explicit-module-boundary-types": "off"
+    }
+  }],
+}
+```
+
+今回中身については触れません、また自分も調べて切れていないためよくないところがあるかもしれません...
+`.eslintignore`の中は以下のようにしました。
+
+```
+**/node_modules/*
+**/out/*
+**/.next/*
+package.json
+*.config.js
+.eslintrc.js
+```
+
+## prettier設定ファイル変更
+
+prettierの設定は好みになると思いますが、個人的には`package.json`に以下のように書き加えてしまいます。
+
+```diff json:package.json
+{
+  ...
++  "prettier": {
++    "trailingComma": "es5",
++    "semi": false,
++    "singleQuote": true,
++    "printWidth": 120
++  },
+  ...
+}
+```
+
+## vscode設定変更
+
+こちらも好みになるところがあると思いますが
+自分は保存時にprettierで整形されるように`.vscode/settings.json`ファイルを作成し中身を以下のようにしました。
+
+```json:settings.json
+{
+  "eslint.workingDirectories": [ { "mode": "auto" } ],
+  "editor.formatOnSave": false,
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode", "editor.formatOnSave": true },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode", "editor.formatOnSave": true },
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+  "eslint.validate": [
+    "json",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+}
+```
+
+## vscode拡張機能追加
+vscodeの拡張機能の検索でそれぞれ「eslint」「prettier」と検索して
+一番上に出てくるものをインストールしておきましょう。
+
+## scripts追加、動作確認
+
+最後に`package.json`のscriptsに以下を追加します。
+
+```diff json:package.json
+{
+"scripts": {
+    ...
++    "lint:eslint": "eslint --cache .",
++   "lint:prettier": "prettier --check .",
+  }
+}
+```
+
+また、`eslintrc.js`の構文誤りなどを確かめるために一度上に追加したscriptsを動かして試しておきましょう。
+```
+yarn lint:eslint
+yarn lint:prettier
+```
+
+scripts実行の結果、構文エラーなどで落ちていなければよいです。
+また、適当なコード内で適当なスペースを入れたりしてみて、保存時にprettierが動いてくれていればOKです。
+
+（eslintとprettierの設定に関しては[こちら](https://github.com/lightsound/nexst)のリポジトリをとても参考にさせていただきました。）
+
 # 4. husky, lint-stagedの設定
 
-## インストール
+## packageインストール
 以下のコマンドでパッケージをインストールします。
 
 ```
 yarn add -D husky lint-staged
 ```
 
+## 設定ファイル変更
+`package.json`に以下を追加します。
+
+```diff json:package.json
+{
+  ...
++  "lint-staged": {
++    "*.{js,jsx,ts,tsx}": [
++      "eslint --fix",
++      "prettier --write"
++    ]
++  }
+  ...
+}
+```
+
+`npx husky install`を実行し、husky用のディレクトリを生成します。
+```
+❯ npx husky install
+husky - Git hooks installed
+```
+
+`package.json`のscriptsに以下を追加します。
+```diff json:package.json
+{
+  ...
++  "scripts": {
++    "prepare": "husky install"
++  }
+  ...
+}
+```
+
+`prepare`とは[git hooks](https://git-scm.com/book/ja/v2/Git-%E3%81%AE%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%9E%E3%82%A4%E3%82%BA-Git-%E3%83%95%E3%83%83%E3%82%AF)の機構においてgitからリポジトリをcloneした時点に設定を有効化するもののようです。
+yarn2をお使いの場合は`prepare`が動作しないようなので[こちら](https://fwywd.com/tech/husky-setup)の記事などを参考にすると良いかと思います。
+
+そして`npx husky add`コマンドを実行し`pre-commit`ファイルという、コミット前に実行したいコマンドを記述するファイルの生成を行います。
+```
+npx husky add .husky/pre-commit "npx lint-staged"
+```
+
+`.husky/pre-commit`ファイル内を確認しておきましょう
+他にcommit時、push時に追加したい処理があればこちらに追記します。
+```shell
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx lint-staged
+```
+
+## 動作確認
+
+適当にコンポーネントファイルを編集し、ターミナルから`git commit`してみます。
+
+```
+✔ Preparing...
+✔ Running tasks...
+✔ Applying modifications...
+✔ Cleaning up...
+[main 3849f8b] husky test
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+```
+
+このように正常にlintチェックが走ってくれました！
+
 # 5. jest, react-testing-libraryの設定
+(ここら辺も恥ずかしながら初心者の為、不適切な点はご指摘いただけるとありがたいです🙇‍♂️)
+恥ずかしながらテストについては勉強不足のためほぼ[こちら](https://github.com/lightsound/nexst)のリポジトリを参考にさせていただきました。
+また、一旦ここではテストの確認を行いません。(後日追記していきたいなと思います)
+## packageインストール
+以下のコマンドでパッケージをインストールします。
+
+```
+yarn add -D jest @types/jest ts-jest @testing-library/react @testing-library/jest-dom @testing-library/user-event
+```
+
+## 設定ファイル変更
+
+`package.json`にtest用のscriptsを追加します。
+```diff json:package.json
+{
+  ...
+  scripts: {
++    "test": "jest"
+  }
+  ...
+}
+```
+
+ルートディレクトリに以下の2つのファイルを作成し、それぞれを編集していきます。
+- `jest.setup.js`
+- `jest.config.js`
+
+```js:jest.setup.js
+import '@testing-library/jest-dom/extend-expect'
+```
+
+```js:jest.config.js
+const nextJest = require("next/jest");
+
+const createJestConfig = nextJest({ dir: "./" });
+
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ **/
+const customJestConfig = {
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  modulePathIgnorePatterns: ["<rootDir>/e2e/"],
+  moduleNameMapper: { "src/(.*)": "<rootDir>/src/$1" }, 
+};
+
+module.exports = createJestConfig(customJestConfig);
+```
+
+`setup.ts`には、jest-domというDOM要素のテストのためにJestを拡張するライブラリをimportしておきます。
+こちらはReactTestingLibraryを使用するために必須ではないのですが、テストの作成がより便利になるそうです。
+
+`config.ts`にはjestの設定の基礎となるものを記述しています。
 
 # 6. scaffdogの設定
+## packageインストール
+以下のコマンドでパッケージをインストールします。
+
+```
+yarn add -D scaffdog
+```
+
+## 設定ファイル変更
+
+`package.json`に以下のscriptsを追加します。
+```diff json:package.json
+{
+  ...
+  scripts: {
++    "component": "scaffdog generate component"
+  }
+  ...
+}
+```
+
+そしてルートディレクトリに`.scaffdog/`ディレクトリを作成し、以下の2つのファイルを含めます。
+
+```js:config.js
+module.exports = {
+  files: ['./*'],
+};
+```
+
+```md:component.md
+---
+name: "component"
+root: "."
+output: "**/*"
+ignore: []
+questions:
+  name: "Please enter component name."
+---
+
+# `{{ inputs.name | pascal }}.tsx`
+
+```typescript
+import type { VFC } from 'react'
+
+type {{ inputs.name | pascal -}}ViewProps = {
+} & {{ inputs.name | pascal -}}Props
+
+const {{ inputs.name | pascal -}}View: VFC<{{ inputs.name | pascal -}}ViewProps> = (props) => {
+  return null
+}
+
+type {{ inputs.name | pascal -}}Props = {
+}
+
+export const {{ inputs.name | pascal }}: VFC<{{ inputs.name | pascal -}}Props> = (props) => {
+  return <{{ inputs.name | pascal -}}View {...props} />
+}
+```
+
+コンポーネントに関しては、最近ビューとロジックを分けたい感じがあり、このような構造にすることが多く
+雛形としてこのようにしておきます。
+Storybookを使用するプロジェクトでは、こちらのmarkdownに追加でstoryファイルの
+設定も記述したり、テストファイルも記述したりすると良さそうです。
+
+## 動作確認
+`yarn component`を実行すると、作成するコンポーネントを聞かれますので入力すると
+作成するディレクトリを選択することができます。
+ディレクトリを選択すると以下のように、markdownの記述と入力されたコンポーネント名に沿って
+新しいファイルを自動で生成してくれます。
+
+```
+? Please enter component name. Hoge
+🐶 Generated 1 file!
+✔ src/components/Hoge.tsx
+✨  Done in 3.57s.
+```
+
+👇生成されたコンポーネント
+```tsx: Hoge.tsx
+import type { VFC } from 'react'
+
+type HogeViewProps = {} & HogeProps
+
+const HogeView: VFC<HogeViewProps> = (props) => {
+  return null
+}
+
+type HogeProps = {}
+
+export const Hoge: VFC<HogeProps> = (props) => {
+  return <HogeView {...props} />
+}
+```
 
 # 7. ErrorBoundaryの設定
+## packageインストール
+以下のコマンドでパッケージをインストールします。
+
+```
+yarn add react-error-boundary
+```
+
+## コンポーネントの作成
+上記のライブラリを使い、ErrorBoundaryコンポーネントを`src/components/layout`配下に作成します。
+[公式リポジトリ](https://github.com/bvaughn/react-error-boundary)の例を参考に作成しました。
+
+```tsx:LayoutErrorBoundary.tsx
+import type { FC, ReactNode, VFC } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
+
+type ErrorFallbackProps = {
+  error: Error
+  resetErrorBoundary: () => void
+}
+
+const ErrorFallback: VFC<ErrorFallbackProps> = (props) => {
+  return (
+    <div role="alert">
+      <p>Something went wrong:</p>
+      <pre>{props.error.message}</pre>
+      <button onClick={props.resetErrorBoundary}>Try again</button>
+    </div>
+  )
+}
+
+type LayoutErrorBoundaryProps = {
+  children: ReactNode
+}
+
+export const LayoutErrorBoundary: FC<LayoutErrorBoundaryProps> = (props) => {
+  return (
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onReset={() => {
+        // reset the state of your app so the error doesn't happen again
+      }}
+    >
+      {props.children}
+    </ErrorBoundary>
+  )
+}
+```
+
+今回外部から読み込みはしていないのですが、使い方としてはヘッダーやサイドバーなど、ページ間で共通のレイアウトを除いた
+メインのコンテンツとなる部分のコンポーネントをこちらの`LayoutErrorBoundary`でラップすることによりその内部で伝播されたエラーをここでcatchし、`ErrorFallback`コンポーネントを表示させることができます。
 
 # 8. renovateの設定
+renovateについては他と手順が少し変わります。
+
 
 # さいごに
+場合によっては`_document.tsx`を作成したり、独自の`404.tsx`を作成したり、`next-seo`のようなライブラリを入れたり
+など考えると入れておきたいケースが多いものが様々あるかとは思いますが、今回は一旦この程度に留めておきたいなと思います。
+テンプレートリポジトリがあると、技術をすぐに試すモチベーションが上がったり、様々な環境系ライブラリの知識も身につくので今回自作してみて良かったなと思います。
+(それでも他の方のものをほぼ参考にしていたのですが...)
+
+他にもおすすめな便利ツールや設定がありましたら教えていただけると嬉しいです。
+最後まで見ていただきありがとうございました！
+
 
 # 参考にさせていただいたもの
+- https://github.com/lightsound/nexst
 - https://zenn.dev/yoshiko/articles/99f8047555f700
 - https://github.com/cats-oss/scaffdog
 - https://ja.reactjs.org/docs/error-boundaries.html
@@ -235,3 +708,7 @@ yarn add -D husky lint-staged
 - https://qiita.com/takiga/items/6ec7b9c9613ec8bf7d51
 - https://mo-gu-mo-gu.com/create-next-app-typescript/
 - https://nalog.work/minh8zakv
+- https://www.npmjs.com/package/eslint-plugin-strict-dependencies
+- https://zenn.dev/thiragi/articles/555a644b35ebc1
+- https://qiita.com/dtakkiy/items/8d6025c052784ab8eef4
+- https://fwywd.com/tech/husky-setup
