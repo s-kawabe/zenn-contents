@@ -2,7 +2,7 @@
 title: "Next.jsのテンプレートリポジトリをつくろう"
 emoji: "⏭️"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["nextjs", "eslint", "prettier", "typescript", "jest", "renovate"]
+topics: ["nextjs", "eslint", "prettier", "typescript"]
 published: false
 ---
 
@@ -79,7 +79,7 @@ commit時にlinterやformatterのチェックを走らせてくれるもので�
 また、エラーがあった場合CIなどでチェックせず、コミット前に検知できるのも魅力的です。
 
 ### jest, react-testing-library
-正直なところ、今までフロントエンドのテストを積極的に学んでこなかったので宇賀
+正直なところ、今までフロントエンドのテストを積極的に学んでこなかったのですが、
 これからのプロジェクトや個人開発ではちゃんとやっていこう！という思いから、組み込んでおくことにしました。
 
 ### scaffdog
@@ -99,7 +99,7 @@ React Server Componentsの登場や、Suspenseとの併用なども後々考え�
 ### renovate
 [renovate](https://github.com/renovatebot/renovate)はリポジトリ内のライブラリアップデートを自動化してくれるものです。
 さまざまなカスタマイズが可能で、botがpackage.jsonとlockファイルの更新PRを自動で出してくれます。
-設定のよっては、PRを勝手にマージさせるということもできます。
+設定によっては、PRを勝手にマージさせるということもできます。
 
 似たようなツールとしてはdependabotがあるかと思うのですが、正直今回はどちらでも良いかなという印象でした。
 しかし知り合いの方にrenovateを教えてくれる人がいたので今回はこちらを採用しています。
@@ -220,7 +220,7 @@ import type { VFC } from 'react'
 // 内部のsrc配下から読み込んだもの
 import { someComponent } from '@/components/some'
 // 内部のルートディレクトリから読み込んだもの
-import { someSettings } from '~/someSettings.ts'
+import { someSetting } from '~/someSetting'
 ```
 
 # 3. eslint, prettierの設定
@@ -308,9 +308,9 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error", // hooksの基本的なlinter
     "react-hooks/exhaustive-deps": "warn", // effectやcallbackのdeps linter
     "import/newline-after-import": "error",
-    "import/no-default-export": "error",
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
+    "import/no-default-export": "error", // default-exportを禁止する
+    "simple-import-sort/imports": "error", // import文の整列
+    "simple-import-sort/exports": "error", // export文の整列
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/explicit-module-boundary-types": "error",
     "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
@@ -322,7 +322,7 @@ module.exports = {
       rules: { "import/no-default-export": "off" },
     },
     {
-      files: ["**/*.tsx"],
+      files: ["**/*.tsx"], // componentの戻り値の型定義の記述は必須にしない
       rules: {
         "@typescript-eslint/explicit-module-boundary-types": "off"
     }
@@ -340,6 +340,7 @@ module.exports = {
 package.json
 *.config.js
 .eslintrc.js
+renovate.json // (あとで追加するファイル)
 ```
 
 ## prettier設定ファイル変更
@@ -393,7 +394,7 @@ vscodeの拡張機能の検索でそれぞれ「eslint」「prettier」と検索
 {
 "scripts": {
     ...
-+    "lint:eslint": "eslint --cache .",
++   "lint:eslint": "eslint --cache .",
 +   "lint:prettier": "prettier --check .",
   }
 }
@@ -486,8 +487,8 @@ npx lint-staged
 
 # 5. jest, react-testing-libraryの設定
 (ここら辺も恥ずかしながら初心者の為、不適切な点はご指摘いただけるとありがたいです🙇‍♂️)
-恥ずかしながらテストについては勉強不足のためほぼ[こちら](https://github.com/lightsound/nexst)のリポジトリを参考にさせていただきました。
-また、一旦ここではテストの確認を行いません。(後日追記していきたいなと思います)
+テストについては勉強不足のためほぼ[こちら](https://github.com/lightsound/nexst)のリポジトリを参考にさせていただきました。
+また、一旦ここではテストの確認を行いません。(後日追記していきたいなーと思います。。)
 ## packageインストール
 以下のコマンドでパッケージをインストールします。
 
@@ -533,10 +534,10 @@ const customJestConfig = {
 module.exports = createJestConfig(customJestConfig);
 ```
 
-`setup.ts`には、jest-domというDOM要素のテストのためにJestを拡張するライブラリをimportしておきます。
+`setup.js`には、jest-domというDOM要素のテストのためにJestを拡張するライブラリをimportしておきます。
 こちらはReactTestingLibraryを使用するために必須ではないのですが、テストの作成がより便利になるそうです。
 
-`config.ts`にはjestの設定の基礎となるものを記述しています。
+`config.js`にはjestの設定の基礎となるものを記述しています。
 
 # 6. scaffdogの設定
 ## packageインストール
@@ -686,7 +687,30 @@ export const LayoutErrorBoundary: FC<LayoutErrorBoundaryProps> = (props) => {
 
 # 8. renovateの設定
 renovateについては他と手順が少し変わります。
+またこちらは現段階で無料ではあるもののクレジットカード登録、又はPaypalによる支払い情報を登録する必要があるため
+自己責任にてよろしくお願いいたします。
 
+[公式サイト](https://www.whitesourcesoftware.com/free-developer-tools/renovate/)に行き以下の「Github App」ボタンをクリックします。
+![](/images/how-to-make-next-template-repository/renovate-top.png)
+
+画面下部にある「Install it for free」をクリックします。
+![](/images/how-to-make-next-template-repository/renovate-install.png)
+
+「Complete order and begin installation」をクリックします。
+![](/images/how-to-make-next-template-repository/renovate-link.png)
+
+支払い情報を選択した後、GitHub連携方法を尋ねられます。
+ラジオボタンが選択可能なのですが今回は「Only select repositries」にして今回の「next-ts-template」のリポジトリを選択しました。
+(全てのリポジトリにするとPRがすごいことになりそう... お気をつけください。)
+![](/images/how-to-make-next-template-repository/renovate-github.png)
+
+renovateを初めてPRに入れると程なくしてこのようなPRが自動で作成されます。
+これはルートディレクトリに、renovateの設定ファイルである「renovate.json」を作成してくれるものです。
+後からよしなにカスタマイズできますが一旦脳死でマージしてしまいましょう。
+![](/images/how-to-make-next-template-repository/renovate-pr.png)
+
+これでセットアップ完了となります、今後連携したリポジトリに対してはrenovate botがどんどんPRを投げてくれるようになるかと思います。
+また、[こちら](https://docs.renovatebot.com/configuration-options/)に設定ファイルに関するドキュメントがまとまっていますので運用しつつ、設定ファイルの内容は改善していけたらと思います。
 
 # さいごに
 場合によっては`_document.tsx`を作成したり、独自の`404.tsx`を作成したり、`next-seo`のようなライブラリを入れたり
