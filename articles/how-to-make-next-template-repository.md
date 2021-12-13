@@ -687,8 +687,7 @@ export const LayoutErrorBoundary: FC<LayoutErrorBoundaryProps> = (props) => {
 
 # 8. renovateの設定
 renovateについては他と手順が少し変わります。
-またこちらは現段階で無料ではあるもののクレジットカード登録、又はPaypalによる支払い情報を登録する必要があるため
-自己責任にてよろしくお願いいたします。
+またこちらは現段階で無料ではあるもののクレジットカード登録、又はPaypalによる支払い情報を登録する必要があるため自己責任にてよろしくお願いいたします。
 
 [公式サイト](https://www.whitesourcesoftware.com/free-developer-tools/renovate/)に行き以下の「Github App」ボタンをクリックします。
 ![](/images/how-to-make-next-template-repository/renovate-top.png)
