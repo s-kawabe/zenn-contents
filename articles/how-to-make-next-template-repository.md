@@ -3,7 +3,7 @@ title: "Next.jsのテンプレートリポジトリをつくろう"
 emoji: "⏭️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["nextjs", "eslint", "prettier", "typescript"]
-published: false
+published: true
 ---
 
 # はじめに
