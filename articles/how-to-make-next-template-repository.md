@@ -107,6 +107,13 @@ React Server Componentsの登場や、Suspenseとの併用なども後々考え�
 以下を参考にさせていただきました。
 https://qiita.com/takiga/items/6ec7b9c9613ec8bf7d51
 
+### nprogress (2021/12/15 追記)
+zennなどでも使用されている、ページ遷移時に画面の上を青い線が走るUIを実装できます。
+実装は簡単なもののUX向上としてかなり良いツールだと思い入れることにしました。
+
+以下を参考にさせていただきました。
+https://zenn.dev/yusugomori/articles/51e63a4aa9dc27e21124
+
 ---
 
 # 1. リポジトリの作成
@@ -711,6 +718,56 @@ renovateを初めてPRに入れると程なくしてこのようなPRが自動�
 これでセットアップ完了となります、今後連携したリポジトリに対してはrenovate botがどんどんPRを投げてくれるようになるかと思います。
 また、[こちら](https://docs.renovatebot.com/configuration-options/)に設定ファイルに関するドキュメントがまとまっていますので運用しつつ、設定ファイルの内容は改善していけたらと思います。
 
+# 9. nprogressの設定 (2021/12/15 追記)
+
+## packageインストール
+
+以下のコマンドでパッケージをインストールします。
+`nprogress`は型も一緒に。
+
+```
+yarn add nprogress
+```
+
+```
+yarn add -D @types/nprogress
+```
+## _app.tsxの修正
+
+以下のように修正します。
+
+```tsx
+import 'nprogress/nprogress.css'
+
+import type { AppProps } from 'next/app'
+import nprogress from 'nprogress'
+import { useEffect } from 'react'
+
+// お好みで設定。
+// 一瞬で遷移できる場合でもspeed: 400のようにするとバーが必ずアニメーションしてくれる?
+nprogress.configure({ showSpinner: false, speed: 400, minimum: 0.25 })
+
+const MyApp = ({ Component, pageProps }: AppProps) => {
+  if (process.browser) {
+    nprogress.start()
+  }
+
+  useEffect(() => {
+    nprogress.done()
+  })
+
+  return <Component {...pageProps} />
+}
+
+export default MyApp
+
+```
+
+## 動作確認
+
+pages配下に1つページをはやして確認したところうまく表示されてくれました！
+（簡単でした！）
+
 # さいごに
 場合によっては`_document.tsx`を作成したり、独自の`404.tsx`を作成したり、`next-seo`のようなライブラリを入れたり
 など考えると入れておきたいケースが多いものが様々あるかとは思いますが、今回は一旦この程度に留めておきたいなと思います。
@@ -735,3 +792,4 @@ renovateを初めてPRに入れると程なくしてこのようなPRが自動�
 - https://zenn.dev/thiragi/articles/555a644b35ebc1
 - https://qiita.com/dtakkiy/items/8d6025c052784ab8eef4
 - https://fwywd.com/tech/husky-setup
+- https://zenn.dev/yusugomori/articles/51e63a4aa9dc27e21124
