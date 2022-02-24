@@ -495,10 +495,12 @@ npx lint-staged
 # 5. jest, react-testing-libraryの設定
 
 **(2022/2/14追記)**
+
 最近リリースされたNext.js v12.1にてjestをzero-configで簡単に設定できるような機構が現れました。
 [参考1](https://nextjs.org/blog/next-12-1#zero-configuration-jest-plugin)
 [参考2](https://zenn.dev/miruoon_892/articles/e42e64fbb55137)
 新しく自分でセットアップする方はこちらを先にチェックすると良いかもしれません。
+
 ---
 
 (ここら辺も恥ずかしながら初心者の為、不適切な点はご指摘いただけるとありがたいです🙇‍♂️)
