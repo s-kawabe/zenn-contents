@@ -659,7 +659,7 @@ yarn add react-error-boundary
 ```
 
 ## コンポーネントの作成
-上記のライブラリを使い、ErrorBoundaryコンポーネントを`src/components/layout`配下に作成します。
+上記のライブラリを使い、ErrorBoundaryコンポーネントを`src/components/layout`配下に作成しました。
 [公式リポジトリ](https://github.com/bvaughn/react-error-boundary)の例を参考に作成しました。
 
 ```tsx:LayoutErrorBoundary.tsx
