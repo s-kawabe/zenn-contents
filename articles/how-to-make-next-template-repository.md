@@ -6,6 +6,16 @@ topics: ["nextjs", "eslint", "prettier", "typescript"]
 published: true
 ---
 
+:::message
+(2022年5月 追記) 
+- 構成にpathpidaを追加しました。
+pathpidaはpages内の構成を自動で読み込み、静的ファイルに全てのパスを吐き出してくれるライブラリです。
+https://github.com/aspida/pathpida
+
+- tsconfig.jsonを若干厳しめの設定に変えました
+noUncheckedIndexedAccessとexactOptionalPropertyTypesをtrueにしました。
+:::
+
 # はじめに
 Webフロントエンジニアになって5ヶ月目の者です。
 最近のおしゃれなエンジニアはあらゆるエコシステムの素振りや、新しいプロジェクトの雛形として自分なりのテンプレートリポジトリを作っているようなので私も真似してみたいなと思い、
