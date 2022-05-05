@@ -13,7 +13,7 @@ pathpidaはpages内の構成を自動で読み込み、静的ファイルに全�
 https://github.com/aspida/pathpida
 
 - tsconfig.jsonを若干厳しめの設定に変えました
-noUncheckedIndexedAccessとexactOptionalPropertyTypesをtrueにしました。
+noUncheckedIndexedAccess/exactOptionalPropertyTypes/noImplicitReturns/noFallthroughCasesInSwitchをtrueにしました。
 :::
 
 # はじめに
