@@ -16,9 +16,15 @@ https://github.com/aspida/pathpida
 noUncheckedIndexedAccess/exactOptionalPropertyTypes/noImplicitReturns/noFallthroughCasesInSwitchをtrueにしました。
 :::
 
+:::message
+(2022年8月 追記) 
+- ReactやNext.jsのバージョンを最新化しました
+- husky / lint-stagedを構成から外しました🙇‍♂️
+:::
+
 # はじめに
 Webフロントエンジニアになって5ヶ月目の者です。
-最近のおしゃれなエンジニアはあらゆるエコシステムの素振りや、新しいプロジェクトの雛形として自分なりのテンプレートリポジトリを作っているようなので私も真似してみたいなと思い、
+優秀なエンジニアはあらゆるエコシステムの素振りや、新しいプロジェクトの雛形として自分なりのテンプレートリポジトリを作っているようなので私も真似してみたいなと思い、
 この度これの作成過程を記録しておこうと記事にしてみました。
 
 拙い点や改善点がありましたら、ご指摘いただけると大変嬉しいです🙇‍♂️
@@ -81,7 +87,7 @@ prettierに関してもテンプレートをcloneした時点で最初から保�
 入れておくことにしました。
 一緒に`vscode/settings.json`などもコミットしておきます。
 
-### husky, lint-staged
+### husky, lint-staged (2022/08/13にリポジトリからは削除しました。)
 commit時にlinterやformatterのチェックを走らせてくれるものです。
 「eslintによってエディタ上でlinterエラーは分かるのでは？」
 と思われるかもしれないのですが、コード変更によって、予定外のファイルがそれに依存していて
@@ -428,7 +434,7 @@ scripts実行の結果、構文エラーなどで落ちていなければよい�
 
 （eslintとprettierの設定に関しては[こちら](https://github.com/lightsound/nexst)のリポジトリをとても参考にさせていただきました。）
 
-# 4. husky, lint-stagedの設定
+# 4. husky, lint-stagedの設定 (2022/08/13にリポジトリからは削除しました。)
 
 ## packageインストール
 以下のコマンドでパッケージをインストールします。
@@ -510,6 +516,12 @@ npx lint-staged
 [参考1](https://nextjs.org/blog/next-12-1#zero-configuration-jest-plugin)
 [参考2](https://zenn.dev/miruoon_892/articles/e42e64fbb55137)
 新しく自分でセットアップする方はこちらを先にチェックすると良いかもしれません。
+
+**(2022/8/13追記)**
+
+Jestのv28から、下記の設定だと動作しない可能性があります。
+以下を参考にしてください。
+https://zenn.dev/keita_hino/articles/488d31e8c4a240
 
 ---
 
@@ -669,6 +681,13 @@ yarn add react-error-boundary
 ```
 
 ## コンポーネントの作成
+
+**(2022/8/13追記)**
+
+VFCやFCによるコンポーネントへの型付けは今後非推奨となる場合があります。
+
+---
+
 上記のライブラリを使い、ErrorBoundaryコンポーネントを`src/components/layout`配下に作成しました。
 [公式リポジトリ](https://github.com/bvaughn/react-error-boundary)の例を参考に作成しました。
 
