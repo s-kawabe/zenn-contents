@@ -6,6 +6,12 @@ topics: ["nextjs", "eslint", "prettier", "typescript"]
 published: true
 ---
 
+
+:::message
+注: この記事ではNext.js v13を使用していません。
+13移行の/appディレクトリやNestedLayoutの思想は含まれておりませんのでご了承ください。
+:::
+
 :::message
 (2022年5月 追記) 
 - 構成にpathpidaを追加しました。
